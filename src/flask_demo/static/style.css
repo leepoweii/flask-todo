@@ -45,7 +45,7 @@ button { font: inherit; cursor: pointer; }
   list-style: none; margin: 0; padding: 0;
   background: var(--card); border: 1px solid var(--line); border-radius: 8px;
 }
-.todos li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+.todos li { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
 .todos li + li { border-top: 1px solid var(--line); }
 .todos form { margin: 0; }
 .title { flex: 1; overflow-wrap: anywhere; }
@@ -62,3 +62,30 @@ button { font: inherit; cursor: pointer; }
   margin-top: 12px; border: 0; background: none; color: var(--muted); font-size: 14px; padding: 0;
 }
 .clear:hover { color: var(--danger); }
+.add .assignee-input { flex: 0 1 140px; }
+.people-filter { margin-top: 0; flex-wrap: wrap; row-gap: 4px; }
+.assign summary { list-style: none; cursor: pointer; }
+.assign summary::-webkit-details-marker { display: none; }
+.chip {
+  display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 13px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent);
+}
+.chip.empty-chip { background: none; color: var(--muted); border: 1px dashed var(--line); }
+.assign[open] form {
+  position: absolute; right: 12px; top: calc(100% - 4px); z-index: 1;
+  display: flex; gap: 6px; padding: 8px; width: min(280px, calc(100% - 24px));
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.12);
+}
+.assign input {
+  flex: 1; min-width: 0; padding: 6px 8px; font: inherit; font-size: 14px; color: inherit;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+}
+.assign button {
+  padding: 6px 12px; border: 0; border-radius: 6px; background: var(--accent); color: var(--bg); font-size: 14px;
+}
+@media (max-width: 480px) {
+  .add { flex-wrap: wrap; }
+  .add input[name="title"] { flex-basis: 100%; }
+  .add .assignee-input { flex: 1; }
+}

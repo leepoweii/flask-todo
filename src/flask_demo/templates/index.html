@@ -11,25 +11,45 @@
     <h1>待辦清單</h1>
     <p class="meta">共 {{ counts.total }} 項，完成 {{ counts.done }} 項</p>
 
-    <form class="add" method="post" action="{{ url_for('create', show=show) }}">
+    <datalist id="people">
+      {% for person in people %}<option value="{{ person }}">{% endfor %}
+    </datalist>
+
+    <form class="add" method="post" action="{{ url_for('create', show=show, who=who) }}">
       <input name="title" placeholder="要做什麼？" maxlength="200" autofocus required>
+      <input class="assignee-input" name="assignee" placeholder="指派給（選填）" maxlength="50" list="people">
       <button type="submit">新增</button>
     </form>
 
     <nav class="filters">
       {% for key, label in [('all', '全部'), ('active', '未完成'), ('done', '已完成')] %}
-        <a href="{{ url_for('index', show=key) }}" {% if show == key %}aria-current="page"{% endif %}>{{ label }}</a>
+        <a href="{{ url_for('index', show=key, who=who) }}" {% if show == key %}aria-current="page"{% endif %}>{{ label }}</a>
       {% endfor %}
+    </nav>
+
+    <nav class="filters people-filter" aria-label="依負責人篩選">
+      <a href="{{ url_for('index', show=show) }}" {% if not who %}aria-current="page"{% endif %}>所有人</a>
+      {% for person in people %}
+        <a href="{{ url_for('index', show=show, who=person) }}" {% if who == person %}aria-current="page"{% endif %}>{{ person }}</a>
+      {% endfor %}
+      <a href="{{ url_for('index', show=show, who=unassigned) }}" {% if who == unassigned %}aria-current="page"{% endif %}>未指派</a>
     </nav>
 
     <ul class="todos">
       {% for todo in todos %}
         <li class="{{ 'done' if todo.done }}">
-          <form method="post" action="{{ url_for('toggle', todo_id=todo.id, show=show) }}">
+          <form method="post" action="{{ url_for('toggle', todo_id=todo.id, show=show, who=who) }}">
             <button class="check" type="submit" aria-label="{{ '標為未完成' if todo.done else '標為完成' }}">{{ '✓' if todo.done }}</button>
           </form>
           <span class="title">{{ todo.title }}</span>
-          <form method="post" action="{{ url_for('delete', todo_id=todo.id, show=show) }}">
+          <details class="assign">
+            <summary class="{{ 'chip' if todo.assignee else 'chip empty-chip' }}">{{ todo.assignee or '指派' }}</summary>
+            <form method="post" action="{{ url_for('assign', todo_id=todo.id, show=show, who=who) }}">
+              <input name="assignee" value="{{ todo.assignee or '' }}" placeholder="姓名，留空＝取消指派" maxlength="50" list="people" aria-label="負責人">
+              <button type="submit">儲存</button>
+            </form>
+          </details>
+          <form method="post" action="{{ url_for('delete', todo_id=todo.id, show=show, who=who) }}">
             <button class="delete" type="submit" aria-label="刪除">×</button>
           </form>
         </li>
@@ -39,7 +59,7 @@
     </ul>
 
     {% if counts.done %}
-      <form method="post" action="{{ url_for('clear_done', show=show) }}">
+      <form method="post" action="{{ url_for('clear_done', show=show, who=who) }}">
         <button class="clear" type="submit">清除已完成（{{ counts.done }}）</button>
       </form>
     {% endif %}
